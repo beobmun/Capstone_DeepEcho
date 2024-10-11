@@ -8,5 +8,9 @@
 NameOfSymlink
 AnotherSymlink
 
+**/*.pth
+**/*.torch
+**/*.pt
+
 # sam2
 **/sam2
