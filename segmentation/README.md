@@ -7,6 +7,9 @@
 
 > unet 모델 파일의 이름을 다른 것으로 설정할 경우, **segmentation_viedo.py** 에서 "unet_path" 변수를 알맞게 변경해주세요.
 
+### segmentation 완료 후 터미널 창에서 segmentation 영상이 재생됩니다.
+> "**q**" 를 누르면 동영상이 종료됩니다.
+
 # 실행 방법
 1. 기본: ../dataset/VideoPredictor 디렉토리에 동영상 파일 저장됩니다.
 ```
