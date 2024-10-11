@@ -8,9 +8,8 @@
 NameOfSymlink
 AnotherSymlink
 
-**/*.pth
-**/*.torch
-**/*.pt
+**/trained_models/*
+!**/trained_models/.gitkeep
 
 # sam2
 **/sam2

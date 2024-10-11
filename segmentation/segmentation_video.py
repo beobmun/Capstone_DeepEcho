@@ -13,7 +13,7 @@ from utils.dataset import *
 from utils.get_points import *
 
 unet_path = 'trained_models/unet.pth'
-save_dir = '/home/behan/Capstone_DeepEcho/dataset/VideoPradictor'
+save_dir = '../dataset/VideoPradictor'
 sam2_base_model = 'facebook/sam2-hiera-large'
 sam2_tuned_model_path = '/home/behan/Capstone_DeepEcho/sandbox/aj/Fine_Tuned_model_all/fine_tuned_sam2_5000.torch'
 
