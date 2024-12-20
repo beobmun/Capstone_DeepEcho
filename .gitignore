@@ -11,5 +11,10 @@ AnotherSymlink
 **/trained_models/*
 !**/trained_models/.gitkeep
 
+**/model_weights/*
+!**/model_weights/.gitkeep
+
+
+
 # sam2
 **/sam2
