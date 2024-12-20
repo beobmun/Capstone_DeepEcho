@@ -14,11 +14,11 @@ import torch.nn.utils
 from sam2.sam2_video_predictor import SAM2VideoPredictor
 
 
-unet_path = 'trained_models/unet.pth'
+unet_path = 'model_weights/unet.pth'
 sam2_base_model = 'facebook/sam2-hiera-large'
-sam2_tuned_model_path = '/home/behan/Capstone_DeepEcho/sandbox/aj/Fine_Tuned_model_FIX/fine_tuned_sam2_9500.torch'
+sam2_tuned_model_path = 'model_weights/fine_tuned_sam2.torch'
 
-def segment_video(video_path, output_path):
+def segment_video(video_path, output_path, save_3d=False):
     device = cuda_set()
         
     unet = UNet(n_channels=1, n_classes=2, bilinear=True).to(device)
@@ -70,7 +70,12 @@ def segment_video(video_path, output_path):
         }
         
     # save_seg_video(imgs, video_segment, fps, f'{output_path}/{name}.mp4')
-    save_seg_video(imgs, video_segment, fps, width, height, f'{output_path}/{name}.mp4')
+    if save_3d:
+        save_seg_video_3d(imgs, video_segment, fps, width, height, f'{output_path}/{name}.mp4')
+    else:
+        save_seg_video(imgs, video_segment, fps, width, height, f'{output_path}/{name}.mp4')
+    # save_seg_video(imgs, video_segment, fps, width, height, f'{output_path}/{name}.mp4')
+    # save_seg_video_3d(imgs, video_segment, fps, width, height, f'{output_path}/{name}_3d.mp4')
 
     remove_imgs(name, output_path)
 
@@ -79,4 +84,4 @@ def segment_video(video_path, output_path):
     print(f'{name} segmentation done.')
     print('---------------------------------')
     # os.system(f'mpv --no-config --loop=yes --vo=tct {output_path}/{name}.mp4')
-    return (imgs, video_segment)
+    return imgs, video_segment, fps

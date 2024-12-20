@@ -5,6 +5,9 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.animation as animation
+from .calc_ef import calc_volume_v2
+from .find_esv_edv import calc_mask_area
+
 
 def load_video(video_path):
     cap = cv2.VideoCapture(video_path)
@@ -16,7 +19,7 @@ def load_video(video_path):
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     return cap, fps, width, height
 
-def convert_to_imgs(video_path):
+def convert_to_imgs(video_path, gray=True):
     cap, fps, width, height = load_video(video_path)
     if cap is None:
         return None
@@ -24,7 +27,10 @@ def convert_to_imgs(video_path):
     if cap.isOpened():
         ret, frame = cap.read()
         while ret:
-            imgs.append(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
+            if gray:
+                imgs.append(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
+            else:
+                imgs.append(frame)
             ret, frame = cap.read()
     cap.release()
     return np.array(imgs), fps, width, height
@@ -65,7 +71,7 @@ def save_seg_video(imgs, video_segment, fps, width, height, save_path):
     h = height / fig.dpi
     fig.set_figwidth(w)
     fig.set_figheight(h)
-    
+        
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0, hspace=0, wspace=0)
     def update(out_frame_idx):
         ax.clear()
@@ -76,6 +82,36 @@ def save_seg_video(imgs, video_segment, fps, width, height, save_path):
         if out_frame_idx in video_segment:
             for out_obj_id, out_mask in video_segment[out_frame_idx].items():
                 show_mask(out_mask, ax, obj_id=out_obj_id)
+    ani = animation.FuncAnimation(fig, update, frames=range(0, len(imgs)))
+    ani.save(save_path, writer='ffmpeg', fps=fps)
+    plt.close()
+    
+def save_seg_video_3d(imgs, video_segment, fps, width, height, save_path):
+    masks, areas = calc_mask_area(imgs, video_segment)
+    fig, ax = plt.subplots()
+    w = width / fig.dpi
+    h = height / fig.dpi
+    three_d_masks = []
+    w_3d = min(256, width)
+    h_3d = min(256, height)
+    for mask in masks:
+        downsampled_mask = cv2.resize(mask, (w_3d, h_3d), interpolation=cv2.INTER_CUBIC)
+        downsampled_3d = calc_volume_v2(downsampled_mask)
+        downsampled_3d[downsampled_3d == 0] = np.nan
+        upsampled_3d = cv2.resize(downsampled_3d, (width, height), interpolation=cv2.INTER_CUBIC)
+        three_d_masks.append(upsampled_3d)
+    fig.set_figwidth(w)
+    fig.set_figheight(h)
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, hspace=0, wspace=0)
+    def update(out_frame_idx):
+        ax.clear()
+        ax.axis('off')
+        ax.axes.get_xaxis().set_visible(False)
+        ax.axes.get_yaxis().set_visible(False)
+        ax.imshow(imgs[out_frame_idx], cmap='gray')
+        # m = calc_volume_v2(masks[out_frame_idx])
+        # m[m == 0] = np.nan
+        ax.imshow(three_d_masks[out_frame_idx], cmap='magma', interpolation='nearest', alpha=0.8)
     ani = animation.FuncAnimation(fig, update, frames=range(0, len(imgs)))
     ani.save(save_path, writer='ffmpeg', fps=fps)
     plt.close()

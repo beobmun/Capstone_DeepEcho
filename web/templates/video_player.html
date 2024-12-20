@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        video {
+            width: 50%;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 50%;
+            margin: 10px auto;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .segmentation {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Viewer</h1>
+    <a href="/">Upload Another ZIP</a>
+    
+    <div id="video-title" style="font-weight: bold; margin-top: 10px;">
+        {{ videos[0].split('/')[-1] }}
+    </div>
+
+    <div>
+        <video id="video-player" controls>
+            <source id="video-source" src="{{ url_for('video', filename=initial_video) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="navigation-buttons">
+        <button id="prev-btn">Previous</button>
+        <button id="next-btn">Next</button>
+    </div>
+
+    <form id="segmentation-form" action="/segment" method="post">
+        <input type="hidden" id="video-path" name="video_path" value="">
+        <button type="submit" id="segment-btn">세그멘테이션 시작</button>
+    </form>
+
+    <script>
+        const videos = {{ videos | tojson }};
+        let currentIndex = 0;
+
+        const videoPlayer = document.getElementById('video-player');
+        const videoTitle = document.getElementById('video-title');
+        const videoSource = document.getElementById('video-source');
+        const segmentBtn = document.getElementById('segment-btn');
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else if (currentIndex === 0) {
+                currentIndex = videos.length - 1;
+            }
+            updateVideo();
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentIndex < videos.length - 1) {
+                currentIndex++;
+            } else if (currentIndex === videos.length - 1) {
+                currentIndex = 0;
+            }
+            updateVideo();
+        });
+
+        // Update video path in the hidden input before form submission
+        document.getElementById('segmentation-form').addEventListener('submit', (event) => {
+            const videoPathInput = document.getElementById('video-path');
+            videoPathInput.value = videos[currentIndex]; // Set the current video path dynamically
+        });
+
+
+
+        function updateVideo() {
+            videoSource.src = `/video/${videos[currentIndex]}`;
+            videoTitle.textContent = videos[currentIndex].split('/').pop();
+            videoPlayer.load();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>A4C 구분 진행 중...</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1 id="status">A4C 구분 진행 중...</h1>
+    <p>잠시만 기다려 주세요.</p>
+
+    <script>
+        const socket = io.connect();
+
+        // 세그멘테이션 상태 업데이트
+        let count = 0;
+        const statuses = ["A4C 구분 진행 중.", "A4C 구분 진행 중..", "A4C 구분 진행 중..."];
+        setInterval(() => {
+            document.getElementById('status').innerText = statuses[count % statuses.length];
+            count++;
+        }, 500);
+
+        // 세그멘테이션 완료 신호 수신
+        socket.on('classification_complete', function(data) {
+            if (data.status === 'completed') {
+                window.location.href = "/videos";  // 결과 페이지로 이동
+            }
+        });
+    </script>
+</body>
+</html>
