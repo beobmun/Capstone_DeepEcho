@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .video-item {
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .form-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        p {
+            margin: 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Gallery</h1>
+    <a href="/">Upload Another ZIP</a>
+    <div class="video-container">
+        <form method="POST" class="form-container">
+            {% for video in videos %}
+            <div class="video-item">
+                <video controls>
+                    <source src="{{ url_for('video', filename=video) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p>
+                    <input type="radio" name="selected_video" value="{{ video }}" id="video_{{ loop.index }}" required>
+                    <label for="video_{{ loop.index }}">{{ video }}</label>
+                </p>
+            </div>
+            {% endfor %}
+            <div>
+                <button type="submit">세그멘테이션 시작</button>
+            </div>
+        </form>
+    </div>
+    {% if message %}
+    <p><strong>{{ message }}</strong></p>
+    {% endif %}
+</body>
+</html>

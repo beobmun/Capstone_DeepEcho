@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>세그멘테이션 결과</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .video-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .video-wrapper {
+            text-align: center;
+        }
+        #graph {
+            position: relative;
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        #image-container {
+            position: absolute;
+            display: flex;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+        }
+        #hover-image {
+            min-width: 240px;
+            min-height: 180px;
+            max-width: 480px;
+            max-height: 360px;
+        }
+    </style>
+</head>
+<body>
+    <h1>세그멘테이션 결과</h1>
+    
+    <div class="video-container">
+        <div class="video-wrapper">
+            <h2>원본 동영상</h2>
+            <video width="480" height="360" controls>
+                <source src="{{ url_for('uploaded_file', filename=original_filename) }}" type="video/mp4">
+                브라우저가 동영상 태그를 지원하지 않습니다.
+            </video>
+        </div>
+        
+        <div class="video-wrapper">
+            <h2>세그멘테이션된 동영상</h2>
+            <video width="480" height="360" controls>
+                <source src="{{ url_for('processed_file', filename=segmented_filename) }}" type="video/mp4">
+                브라우저가 동영상 태그를 지원하지 않습니다.
+            </video>
+        </div>
+    </div>
+    
+    <div id="graph"></div>
+    <div id="image-container">
+        <img id="hover-image" src="" alt="hover-image">
+    </div>
+    <br><br>
+    <a href="/">다른 동영상 업로드</a>
+
+    <script type="text/javascript">
+        var graphData = JSON.parse('{{ graphJSON | safe}}');
+        Plotly.newPlot('graph', graphData.data, graphData.layout);
+
+        var hoverImages = {{ hover_images | tojson}};
+
+        document.getElementById('graph').on('plotly_hover', function(data){
+            var imageContainer = document.getElementById('image-container');
+            var hoverImage = document.getElementById('hover-image');
+
+            hoverImages.forEach(function(item) {
+                if (data.points[0].text == item.point) {
+                    hoverImage.src = item.src;
+                    imageContainer.style.display = 'block';
+                    imageContainer.style.top = (data.event.clientY + 10) + 'px';
+                    imageContainer.style.left = (data.event.clientX + 10) + 'px';
+                }
+            });
+        });
+
+        document.getElementById('graph').on('plotly_unhover', function(data){
+            document.getElementById('image-container').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
